@@ -3,10 +3,7 @@ import { grocery_lists } from "../db/schema.js";
 
 // List all grocery lists for a user
 export async function listGroceryLists(userId) {
-  return db
-    .select()
-    .from(grocery_lists)
-    .where(grocery_lists.user_id.eq(userId));
+  return db.select().from(grocery_lists).where({ user_id: userId });
 }
 
 // Get a single grocery list by ID (and user)
@@ -14,7 +11,7 @@ export async function getGroceryListById(userId, listId) {
   const result = await db
     .select()
     .from(grocery_lists)
-    .where(grocery_lists.user_id.eq(userId).and(grocery_lists.id.eq(listId)));
+    .where({ user_id: userId, id: listId });
   return result[0] || null;
 }
 
@@ -39,7 +36,7 @@ export async function updateGroceryList(userId, listId, data) {
       ...data,
       items: data.items !== undefined ? data.items : undefined,
     })
-    .where(grocery_lists.user_id.eq(userId).and(grocery_lists.id.eq(listId)))
+    .where({ user_id: userId, id: listId })
     .returning();
   return list;
 }
@@ -48,7 +45,7 @@ export async function updateGroceryList(userId, listId, data) {
 export async function deleteGroceryList(userId, listId) {
   const [list] = await db
     .delete(grocery_lists)
-    .where(grocery_lists.user_id.eq(userId).and(grocery_lists.id.eq(listId)))
+    .where({ user_id: userId, id: listId })
     .returning();
   return list;
 }

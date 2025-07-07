@@ -1,37 +1,27 @@
-import {
-  findUserByClerkId,
-  createUser,
-  updateUserProfile,
-} from "../services/userService.js";
-import { getClerkUserId } from "../utils/auth.js";
+import { db } from "../db/index.js";
+import { users } from "../db/schema.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
+import { eq } from "drizzle-orm";
 
 // GET /api/user/profile
-export async function getProfile(req, res, next) {
-  try {
-    const clerkId = getClerkUserId(req);
-    let user = await findUserByClerkId(clerkId);
-    if (!user) {
-      // Optionally auto-create user on first login
-      user = await createUser({
-        clerk_id: clerkId,
-        email: req.auth?.sessionClaims?.email_address,
-        name: req.auth?.sessionClaims?.name,
-      });
-    }
-    res.json({ user });
-  } catch (err) {
-    next(err);
+export const getProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.userId;
+  // Fetch user by DB id - use correct Drizzle syntax
+  const user = await db.select().from(users).where(eq(users.id, userId));
+  if (!user || user.length === 0) {
+    return res.status(404).json({ error: "User not found" });
   }
-}
+  res.json({ user: user[0] });
+});
 
 // PUT /api/user/profile
-export async function putProfile(req, res, next) {
-  try {
-    const clerkId = getClerkUserId(req);
-    const { name } = req.body;
-    const user = await updateUserProfile(clerkId, { name });
-    res.json({ user });
-  } catch (err) {
-    next(err);
-  }
-}
+export const putProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.userId;
+  const { name } = req.body;
+  const [user] = await db
+    .update(users)
+    .set({ name })
+    .where(eq(users.id, userId))
+    .returning();
+  res.json({ user });
+});

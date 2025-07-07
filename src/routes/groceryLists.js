@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { jwtAuth } from "../middleware/jwtAuth.js";
 import {
   listLists,
   getList,
@@ -9,10 +9,10 @@ import {
 } from "../controllers/groceryListController.js";
 const router = Router();
 
-router.get("/", ClerkExpressRequireAuth(), listLists);
-router.post("/", ClerkExpressRequireAuth(), createList);
-router.get("/:id", ClerkExpressRequireAuth(), getList);
-router.put("/:id", ClerkExpressRequireAuth(), updateList);
-router.delete("/:id", ClerkExpressRequireAuth(), deleteList);
+router.get("/", jwtAuth, listLists);
+router.post("/", jwtAuth, createList);
+router.get("/:id", jwtAuth, getList);
+router.put("/:id", jwtAuth, updateList);
+router.delete("/:id", jwtAuth, deleteList);
 
 export default router;

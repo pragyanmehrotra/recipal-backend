@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { jwtAuth } from "../middleware/jwtAuth.js";
 import {
   createCheckout,
   handleWebhook,
@@ -7,7 +7,7 @@ import {
 const router = Router();
 
 // POST /api/payments/checkout (protected)
-router.post("/checkout", ClerkExpressRequireAuth(), createCheckout);
+router.post("/checkout", jwtAuth, createCheckout);
 
 // POST /api/payments/webhook (public, Stripe calls this)
 // TODO: Use raw body parser for Stripe webhook signature verification

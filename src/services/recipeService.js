@@ -3,7 +3,7 @@ import { recipes } from "../db/schema.js";
 
 // List all recipes for a user
 export async function listUserRecipes(userId) {
-  return db.select().from(recipes).where(recipes.user_id.eq(userId));
+  return db.select().from(recipes).where({ user_id: userId });
 }
 
 // Get a single recipe by ID (and user)
@@ -11,7 +11,7 @@ export async function getUserRecipeById(userId, recipeId) {
   const result = await db
     .select()
     .from(recipes)
-    .where(recipes.user_id.eq(userId).and(recipes.id.eq(recipeId)));
+    .where({ user_id: userId, id: recipeId });
   return result[0] || null;
 }
 
@@ -47,7 +47,7 @@ export async function updateUserRecipe(userId, recipeId, data) {
       steps: data.steps !== undefined ? data.steps : undefined,
       data: data.data !== undefined ? data.data : undefined,
     })
-    .where(recipes.user_id.eq(userId).and(recipes.id.eq(recipeId)))
+    .where({ user_id: userId, id: recipeId })
     .returning();
   return recipe;
 }
@@ -56,7 +56,7 @@ export async function updateUserRecipe(userId, recipeId, data) {
 export async function deleteUserRecipe(userId, recipeId) {
   const [recipe] = await db
     .delete(recipes)
-    .where(recipes.user_id.eq(userId).and(recipes.id.eq(recipeId)))
+    .where({ user_id: userId, id: recipeId })
     .returning();
   return recipe;
 }

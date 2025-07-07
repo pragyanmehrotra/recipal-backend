@@ -15,6 +15,20 @@
       "when": 1751300947373,
       "tag": "0001_slim_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751873625457,
+      "tag": "0002_regular_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1751928160162,
+      "tag": "0003_colossal_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }

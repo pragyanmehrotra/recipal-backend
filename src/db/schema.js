@@ -10,8 +10,8 @@ import {
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  clerk_id: text("clerk_id").notNull().unique(),
   email: text("email").notNull().unique(),
+  password: text("password").notNull(),
   name: text("name"),
   premium: boolean("premium").notNull().default(false),
   created_at: timestamp("created_at").notNull().defaultNow(),

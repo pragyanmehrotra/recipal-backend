@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { jwtAuth } from "../middleware/jwtAuth.js";
 import {
   registerToken,
   sendNotification,
 } from "../controllers/notificationController.js";
 const router = Router();
 
-router.post("/register", ClerkExpressRequireAuth(), registerToken);
-router.post("/send", ClerkExpressRequireAuth(), sendNotification);
+router.post("/register", jwtAuth, registerToken);
+router.post("/send", jwtAuth, sendNotification);
 
 export default router;

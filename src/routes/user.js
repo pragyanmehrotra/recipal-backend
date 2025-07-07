@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ClerkExpressRequireAuth } from "@clerk/clerk-sdk-node";
+import { jwtAuth } from "../middleware/jwtAuth.js";
 import { getProfile, putProfile } from "../controllers/userController.js";
 import {
   listRecipes,
@@ -16,19 +16,19 @@ import {
 const router = Router();
 
 // User profile
-router.get("/profile", ClerkExpressRequireAuth(), getProfile);
-router.put("/profile", ClerkExpressRequireAuth(), putProfile);
+router.get("/profile", jwtAuth, getProfile);
+router.put("/profile", jwtAuth, putProfile);
 
 // User recipes
-router.get("/recipes", ClerkExpressRequireAuth(), listRecipes);
-router.post("/recipes", ClerkExpressRequireAuth(), createRecipe);
-router.get("/recipes/:id", ClerkExpressRequireAuth(), getRecipe);
-router.put("/recipes/:id", ClerkExpressRequireAuth(), updateRecipe);
-router.delete("/recipes/:id", ClerkExpressRequireAuth(), deleteRecipe);
+router.get("/recipes", jwtAuth, listRecipes);
+router.post("/recipes", jwtAuth, createRecipe);
+router.get("/recipes/:id", jwtAuth, getRecipe);
+router.put("/recipes/:id", jwtAuth, updateRecipe);
+router.delete("/recipes/:id", jwtAuth, deleteRecipe);
 
 // Favorites
-router.get("/favorites", ClerkExpressRequireAuth(), listUserFavorites);
-router.post("/favorites", ClerkExpressRequireAuth(), addUserFavorite);
-router.delete("/favorites/:id", ClerkExpressRequireAuth(), removeUserFavorite);
+router.get("/favorites", jwtAuth, listUserFavorites);
+router.post("/favorites", jwtAuth, addUserFavorite);
+router.delete("/favorites/:id", jwtAuth, removeUserFavorite);
 
 export default router;

@@ -32,7 +32,7 @@ export async function getSpoonacularRecipeByIdWithCache(id, options = {}) {
   const cached = await db
     .select()
     .from(recipes)
-    .where(recipes.spoonacular_id.eq(Number(id)));
+    .where({ spoonacular_id: Number(id) });
   if (cached.length > 0) return { ...cached[0], cached: true };
 
   // 2. Fetch from Spoonacular

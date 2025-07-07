@@ -7,12 +7,12 @@ export async function registerPushToken(userId, expoToken) {
   const existing = await db
     .select()
     .from(push_tokens)
-    .where(push_tokens.user_id.eq(userId));
+    .where({ user_id: userId });
   if (existing.length > 0) {
     await db
       .update(push_tokens)
       .set({ expo_token: expoToken })
-      .where(push_tokens.user_id.eq(userId));
+      .where({ user_id: userId });
     return { updated: true };
   } else {
     await db
@@ -24,5 +24,5 @@ export async function registerPushToken(userId, expoToken) {
 
 // Get all push tokens for a user
 export async function getPushTokens(userId) {
-  return db.select().from(push_tokens).where(push_tokens.user_id.eq(userId));
+  return db.select().from(push_tokens).where({ user_id: userId });
 }

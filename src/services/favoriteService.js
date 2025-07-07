@@ -3,7 +3,7 @@ import { favorites, recipes } from "../db/schema.js";
 
 // List all favorite recipes for a user (returns recipe IDs)
 export async function listFavorites(userId) {
-  return db.select().from(favorites).where(favorites.user_id.eq(userId));
+  return db.select().from(favorites).where({ user_id: userId });
 }
 
 // Add a favorite (if not already favorited)
@@ -12,8 +12,9 @@ export async function addFavorite(userId, recipeId) {
   const existing = await db
     .select()
     .from(favorites)
-    .where(favorites.user_id.eq(userId).and(favorites.recipe_id.eq(recipeId)));
+    .where({ user_id: userId, recipe_id: recipeId });
   if (existing.length > 0) return existing[0];
+
   const [favorite] = await db
     .insert(favorites)
     .values({ user_id: userId, recipe_id: recipeId })
@@ -25,7 +26,7 @@ export async function addFavorite(userId, recipeId) {
 export async function removeFavorite(userId, recipeId) {
   const [favorite] = await db
     .delete(favorites)
-    .where(favorites.user_id.eq(userId).and(favorites.recipe_id.eq(recipeId)))
+    .where({ user_id: userId, recipe_id: recipeId })
     .returning();
   return favorite;
 }
