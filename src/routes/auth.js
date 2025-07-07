@@ -31,7 +31,11 @@ router.post(
     const hash = await bcrypt.hash(password, 10);
     const [user] = await db
       .insert(users)
-      .values({ email, name, password: hash })
+      .values({
+        email,
+        name: name || `Guest User ${Math.floor(Math.random() * 1000)}`,
+        password: hash,
+      })
       .returning({ id: users.id, email: users.email, name: users.name });
 
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
