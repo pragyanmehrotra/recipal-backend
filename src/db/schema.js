@@ -24,17 +24,17 @@ export const users = pgTable("users", {
 
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
-  user_id: integer("user_id"), // nullable for external recipes
-  spoonacular_id: integer("spoonacular_id"), // nullable for user recipes
-  title: text("title").notNull(),
+  name: text("name").notNull(),
+  ingredients: text("ingredients"),
+  url: text("url"),
   image: text("image"),
-  summary: text("summary"),
-  ready_in_minutes: integer("ready_in_minutes"),
-  servings: integer("servings"),
-  source_url: text("source_url"),
-  ingredients: jsonb("ingredients"), // array of ingredient objects
-  steps: jsonb("steps"), // array of step objects
-  data: jsonb("data"), // full Spoonacular response or extra data
+  cook_time: text("cook_time"),
+  source: text("source"),
+  recipe_yield: text("recipe_yield"),
+  date_published: text("date_published"),
+  prep_time: text("prep_time"),
+  description: text("description"),
+  data: jsonb("data"), // for any extra/unstructured fields
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 

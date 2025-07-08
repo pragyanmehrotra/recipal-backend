@@ -4,6 +4,9 @@ import {
   createUserRecipe,
   updateUserRecipe,
   deleteUserRecipe,
+  searchLocalRecipes,
+  getLocalRecipeById,
+  getRandomLocalRecipes,
 } from "../services/recipeService.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 
@@ -15,12 +18,36 @@ export const listRecipes = asyncHandler(async (req, res) => {
 });
 
 // GET /api/user/recipes/:id
-export const getRecipe = asyncHandler(async (req, res) => {
+export const getUserRecipe = asyncHandler(async (req, res) => {
   const userId = req.user.userId;
   const recipe = await getUserRecipeById(userId, Number(req.params.id));
   if (!recipe) return res.status(404).json({ error: "Recipe not found" });
   res.json({ recipe });
 });
+
+// --- PUBLIC ENDPOINTS FOR EXTERNAL RECIPES ---
+// GET /api/external/recipes/search?query=chicken
+export const searchRecipes = asyncHandler(async (req, res) => {
+  let { query, number, ...options } = req.query;
+  query = (query || "").trim();
+  if (!query) {
+    // Return random recipes if no query is provided or only whitespace
+    const recipes = await getRandomLocalRecipes(Number(number) || 10, options);
+    return res.json({ recipes });
+  }
+  const results = await searchLocalRecipes(query, options);
+  res.json({ results });
+});
+
+// GET /api/external/recipes/:id
+export const getRecipe = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const recipe = await getLocalRecipeById(id);
+  if (!recipe) return res.status(404).json({ error: "Recipe not found" });
+  res.json(recipe);
+});
+
+// --- END PUBLIC ENDPOINTS ---
 
 // POST /api/user/recipes
 export const createRecipe = asyncHandler(async (req, res) => {

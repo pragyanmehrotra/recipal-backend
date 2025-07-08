@@ -1,5 +1,6 @@
 import { db } from "../db/index.js";
 import { recipes } from "../db/schema.js";
+import { or, ilike } from "drizzle-orm";
 
 // List all recipes for a user
 export async function listUserRecipes(userId) {
@@ -60,3 +61,48 @@ export async function deleteUserRecipe(userId, recipeId) {
     .returning();
   return recipe;
 }
+
+// --- PUBLIC RECIPE ENDPOINTS ---
+// Full-text search for recipes
+export async function searchLocalRecipes(query, options = {}) {
+  const number = Math.max(1, Math.min(Number(options.number) || 10, 100));
+  const offset = Math.max(0, Number(options.offset) || 0);
+
+  if (typeof query === "string" && query.trim()) {
+    // Use ilike (case-insensitive substring match) on name and ingredients
+    const results = await db
+      .select()
+      .from(recipes)
+      .where(
+        or(
+          ilike(recipes.name, `%${query}%`),
+          ilike(recipes.ingredients, `%${query}%`)
+        )
+      )
+      .limit(number)
+      .offset(offset);
+    return results;
+  } else {
+    // Fallback: return random recipes using raw SQL
+    const results = await db.execute(
+      `SELECT * FROM recipes ORDER BY RANDOM() LIMIT ${number} OFFSET ${offset}`
+    );
+    return results.rows || results;
+  }
+}
+
+// Get recipe by ID (public)
+export async function getLocalRecipeById(id) {
+  const result = await db.execute(`SELECT * FROM recipes WHERE id = $1`, [id]);
+  return result.rows?.[0] || null;
+}
+
+// Get random recipes (public)
+export async function getRandomLocalRecipes(number = 10, options = {}) {
+  number = Math.max(1, Math.min(Number(number) || 10, 100));
+  const results = await db.execute(
+    `SELECT * FROM recipes ORDER BY RANDOM() LIMIT ${number}`
+  );
+  return results.rows || results;
+}
+// --- END PUBLIC RECIPE ENDPOINTS ---

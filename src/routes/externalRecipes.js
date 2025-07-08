@@ -1,14 +1,12 @@
-import { Router } from "express";
-import {
-  searchExternalRecipes,
-  getExternalRecipe,
-} from "../controllers/spoonacularController.js";
+import express from "express";
+import { searchRecipes, getRecipe } from "../controllers/recipeController.js";
 
-const router = Router();
+const router = express.Router();
 
-// Search Spoonacular recipes
-router.get("/search", searchExternalRecipes);
-// Get Spoonacular recipe by ID
-router.get("/:id", getExternalRecipe);
+// GET /api/external/recipes/search
+router.get("/search", searchRecipes);
+
+// GET /api/external/recipes/:id
+router.get("/:id", getRecipe);
 
 export default router;

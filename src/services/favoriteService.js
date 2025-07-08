@@ -1,32 +1,38 @@
 import { db } from "../db/index.js";
 import { favorites, recipes } from "../db/schema.js";
+import { eq, and } from "drizzle-orm";
 
-// List all favorite recipes for a user (returns recipe IDs)
-export async function listFavorites(userId) {
-  return db.select().from(favorites).where({ user_id: userId });
-}
-
-// Add a favorite (if not already favorited)
 export async function addFavorite(userId, recipeId) {
-  // Prevent duplicate favorites
-  const existing = await db
+  // Check if recipe exists in local DB by local id
+  let localRecipe = await db
     .select()
-    .from(favorites)
-    .where({ user_id: userId, recipe_id: recipeId });
-  if (existing.length > 0) return existing[0];
-
-  const [favorite] = await db
+    .from(recipes)
+    .where(eq(recipes.id, recipeId));
+  if (localRecipe.length === 0) {
+    // Not found in DB
+    throw new Error("Recipe not found in local database");
+  }
+  // Insert favorite
+  await db
     .insert(favorites)
     .values({ user_id: userId, recipe_id: recipeId })
-    .returning();
-  return favorite;
+    .onConflictDoNothing();
+  return { success: true };
 }
 
-// Remove a favorite
 export async function removeFavorite(userId, recipeId) {
-  const [favorite] = await db
+  await db
     .delete(favorites)
-    .where({ user_id: userId, recipe_id: recipeId })
-    .returning();
-  return favorite;
+    .where(
+      and(eq(favorites.user_id, userId), eq(favorites.recipe_id, recipeId))
+    );
+  return { success: true };
+}
+
+export async function listFavorites(userId) {
+  return db
+    .select()
+    .from(favorites)
+    .innerJoin(recipes, eq(favorites.recipe_id, recipes.id))
+    .where(eq(favorites.user_id, userId));
 }
