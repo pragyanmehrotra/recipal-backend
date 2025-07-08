@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { jwtAuth } from "../middleware/jwtAuth.js";
-import { getProfile, putProfile } from "../controllers/userController.js";
+import {
+  getProfile,
+  putProfile,
+  deleteProfile,
+} from "../controllers/userController.js";
 import {
   listRecipes,
   getRecipe,
@@ -13,11 +17,14 @@ import {
   addUserFavorite,
   removeUserFavorite,
 } from "../controllers/favoriteController.js";
+import passwordResetController from "../controllers/passwordResetController.js";
+
 const router = Router();
 
 // User profile
 router.get("/profile", jwtAuth, getProfile);
 router.put("/profile", jwtAuth, putProfile);
+router.delete("/profile", jwtAuth, deleteProfile);
 
 // User recipes
 router.get("/recipes", jwtAuth, listRecipes);

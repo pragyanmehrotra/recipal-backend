@@ -9,6 +9,7 @@ import {
   generateVerificationCode,
   sendVerificationEmail,
 } from "../services/emailService.js";
+import passwordResetController from "../controllers/passwordResetController.js";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
@@ -235,5 +236,9 @@ router.post(
     });
   })
 );
+
+// Password reset endpoints
+router.post("/request-password-reset", passwordResetController.requestReset);
+router.post("/reset-password", passwordResetController.resetPassword);
 
 export default router;

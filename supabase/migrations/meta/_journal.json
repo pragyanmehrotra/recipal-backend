@@ -36,6 +36,13 @@
       "when": 1751932638111,
       "tag": "0004_cool_spot",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1751953036310,
+      "tag": "0005_tricky_ink",
+      "breakpoints": true
     }
   ]
 }

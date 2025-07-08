@@ -112,11 +112,9 @@ export const sendVerificationEmail = async (email, verificationCode) => {
 };
 
 // Send password reset email
-export const sendPasswordResetEmail = async (email, resetToken) => {
+export const sendPasswordResetEmail = async (email, resetCode) => {
   try {
     const transporter = await createTransporter();
-
-    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     const mailOptions = {
       from:
@@ -126,19 +124,17 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
           <div style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%); padding: 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Code</h1>
           </div>
           <div style="padding: 30px;">
             <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-              You requested to reset your password. Click the button below to create a new password:
+              You requested to reset your password. Enter the following code in the app to continue:
             </p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(255, 107, 107, 0.3);">
-                🔐 Reset Password
-              </a>
+            <div style="background-color: #f8f9fa; padding: 25px; text-align: center; margin: 25px 0; border-radius: 8px; border: 2px dashed #FF6B6B;">
+              <h2 style="color: #FF6B6B; font-size: 36px; letter-spacing: 6px; margin: 0; font-weight: bold; font-family: 'Courier New', monospace;">${resetCode}</h2>
             </div>
             <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
-              ⏰ This link will expire in 1 hour.
+              ⏰ This code will expire in 15 minutes.
             </p>
             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 15px; margin: 20px 0;">
               <p style="color: #856404; margin: 0; font-size: 14px;">
