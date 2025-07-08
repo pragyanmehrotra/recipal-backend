@@ -9,8 +9,12 @@ export async function searchSpoonacularRecipes(query, options = {}) {
   const params = {
     apiKey: SPOONACULAR_API_KEY,
     query,
+    addRecipeInformation: true,
     ...options,
   };
+  // Ensure number and offset are numbers if present
+  if (params.number) params.number = Number(params.number);
+  if (params.offset) params.offset = Number(params.offset);
   const res = await axios.get(`${BASE_URL}/recipes/complexSearch`, { params });
   return res.data;
 }
