@@ -41,9 +41,16 @@ export const recipes = pgTable("recipes", {
 export const meal_plans = pgTable("meal_plans", {
   id: serial("id").primaryKey(),
   user_id: integer("user_id").notNull(),
-  week: text("week").notNull(), // e.g. '2024-W27'
-  days: jsonb("days").notNull(), // JSON object: { Monday: [recipeId, ...], ... }
   created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const meal_plan_entries = pgTable("meal_plan_entries", {
+  id: serial("id").primaryKey(),
+  meal_plan_id: integer("meal_plan_id").notNull(),
+  date: text("date").notNull(), // store as ISO date string (YYYY-MM-DD)
+  section: text("section").notNull(),
+  recipe_id: integer("recipe_id").notNull(),
+  sort_order: integer("sort_order"),
 });
 
 export const grocery_lists = pgTable("grocery_lists", {
