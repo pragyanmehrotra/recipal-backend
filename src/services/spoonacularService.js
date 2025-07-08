@@ -62,3 +62,14 @@ export async function getSpoonacularRecipeByIdWithCache(id, options = {}) {
 
   return recipe ? { ...recipe, cached: false } : { ...data, cached: false };
 }
+
+// Fetch random recipes from Spoonacular
+export async function getRandomSpoonacularRecipes(number = 10, options = {}) {
+  const params = {
+    apiKey: SPOONACULAR_API_KEY,
+    number,
+    ...options,
+  };
+  const res = await axios.get(`${BASE_URL}/recipes/random`, { params });
+  return res.data;
+}
