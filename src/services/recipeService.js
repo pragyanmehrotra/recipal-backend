@@ -1,6 +1,7 @@
 import { db } from "../db/index.js";
 import { recipes } from "../db/schema.js";
 import { or, ilike } from "drizzle-orm";
+import scrapeRecipe from "recipe-scraper";
 
 // List all recipes for a user
 export async function listUserRecipes(userId) {
@@ -106,3 +107,129 @@ export async function getRandomLocalRecipes(number = 10, options = {}) {
   return results.rows || results;
 }
 // --- END PUBLIC RECIPE ENDPOINTS ---
+
+// Get or scrape detailed recipe info by URL
+export async function getOrScrapeRecipeDetails(url) {
+  if (!url) return { success: false, message: "No URL provided" };
+  // Try to find recipe by URL with all required fields
+  const [existing] = await db.select().from(recipes).where({ url });
+  if (
+    existing &&
+    existing.recipeIngredients &&
+    existing.recipeInstructions &&
+    existing.image &&
+    Array.isArray(existing.recipeIngredients) &&
+    existing.recipeIngredients.length > 0 &&
+    Array.isArray(existing.recipeInstructions) &&
+    existing.recipeInstructions.length > 0 &&
+    typeof existing.image === "string" &&
+    existing.image.length > 0
+  ) {
+    return { success: true, recipe: existing };
+  }
+
+  // Not found or missing fields, try to scrape
+  let scraped;
+  try {
+    scraped = await scrapeRecipe(url);
+    console.log("[SCRAPER] Raw result:", scraped);
+  } catch (err) {
+    console.error("[SCRAPER] Exception while scraping", { url, error: err });
+    const partial = err?.scraped || err?.data || err?.result;
+    if (
+      partial &&
+      (partial.name ||
+        partial.title ||
+        partial.image ||
+        (Array.isArray(partial.ingredients) &&
+          partial.ingredients.length > 0) ||
+        (Array.isArray(partial.instructions) &&
+          partial.instructions.length > 0))
+    ) {
+      // Map fields from recipe-scraper to our DB format
+      const mapped = {
+        name: partial.name || partial.title || "Untitled Recipe",
+        url,
+        image: partial.image,
+        description: partial.description,
+        cook_time: partial.cookTime,
+        prep_time: partial.prepTime,
+        recipeIngredients: partial.ingredients,
+        recipeInstructions: partial.instructions,
+        details: partial,
+      };
+      Object.keys(mapped).forEach(
+        (k) => mapped[k] === undefined && delete mapped[k]
+      );
+      return { success: true, recipe: mapped, partial: true };
+    }
+    return {
+      success: false,
+      message: "Failed to scrape recipe: " + (err?.message || err),
+    };
+  }
+  if (!scraped || typeof scraped !== "object") {
+    console.error("[SCRAPER] Invalid result (not an object):", scraped);
+    return {
+      success: false,
+      message: "Scraper did not return a valid object.",
+    };
+  }
+  // Only insert defined fields
+  const insertData = {
+    name: scraped.name || scraped.title || "Untitled Recipe",
+    url,
+    image: scraped.image,
+    description: scraped.description,
+    cook_time: scraped.cookTime,
+    prep_time: scraped.prepTime,
+    recipeIngredients: scraped.ingredients,
+    recipeInstructions: scraped.instructions,
+    details: scraped,
+  };
+  Object.keys(insertData).forEach(
+    (k) => insertData[k] === undefined && delete insertData[k]
+  );
+  const hasAllFields =
+    insertData.recipeIngredients &&
+    insertData.recipeInstructions &&
+    insertData.image &&
+    insertData.recipeIngredients.length > 0 &&
+    insertData.recipeInstructions.length > 0;
+  if (!hasAllFields) {
+    console.error("[SCRAPER] Missing required fields after parsing", {
+      url,
+      insertData,
+    });
+    if (
+      insertData.name ||
+      insertData.image ||
+      (Array.isArray(insertData.recipeIngredients) &&
+        insertData.recipeIngredients.length > 0) ||
+      (Array.isArray(insertData.recipeInstructions) &&
+        insertData.recipeInstructions.length > 0)
+    ) {
+      const [saved] = await db
+        .insert(recipes)
+        .values(insertData)
+        .onConflictDoNothing()
+        .returning();
+      return {
+        success: true,
+        recipe: saved?.[0] || saved || insertData,
+        partial: true,
+      };
+    }
+    return {
+      success: false,
+      message:
+        "Could not extract all required fields. Please visit the original page.",
+    };
+  }
+  const [saved] = await db
+    .insert(recipes)
+    .values(insertData)
+    .onConflictDoNothing()
+    .returning();
+  return { success: true, recipe: saved?.[0] || saved || insertData };
+}

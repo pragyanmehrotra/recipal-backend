@@ -25,16 +25,17 @@ export const users = pgTable("users", {
 export const recipes = pgTable("recipes", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  ingredients: text("ingredients"),
-  url: text("url"),
   image: text("image"),
+  url: text("url"),
   cook_time: text("cook_time"),
+  prep_time: text("prep_time"),
+  description: text("description"),
+  recipeIngredients: jsonb("recipeIngredients"), // array of strings
+  recipeInstructions: jsonb("recipeInstructions"), // array of strings
+  details: jsonb("details"), // for any extra/unstructured fields
   source: text("source"),
   recipe_yield: text("recipe_yield"),
   date_published: text("date_published"),
-  prep_time: text("prep_time"),
-  description: text("description"),
-  data: jsonb("data"), // for any extra/unstructured fields
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 

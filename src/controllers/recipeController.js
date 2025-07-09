@@ -7,6 +7,7 @@ import {
   searchLocalRecipes,
   getLocalRecipeById,
   getRandomLocalRecipes,
+  getOrScrapeRecipeDetails,
 } from "../services/recipeService.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 
@@ -45,6 +46,20 @@ export const getRecipe = asyncHandler(async (req, res) => {
   const recipe = await getLocalRecipeById(id);
   if (!recipe) return res.status(404).json({ error: "Recipe not found" });
   res.json(recipe);
+});
+
+// GET /api/recipes/details?url=...
+export const getRecipeDetailsByUrl = asyncHandler(async (req, res) => {
+  const { url } = req.query;
+  if (!url)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing url parameter" });
+  const result = await getOrScrapeRecipeDetails(url);
+  if (!result.success) {
+    return res.status(422).json(result);
+  }
+  res.json(result);
 });
 
 // --- END PUBLIC ENDPOINTS ---

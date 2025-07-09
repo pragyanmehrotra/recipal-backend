@@ -57,6 +57,20 @@
       "when": 1751996833632,
       "tag": "0007_fantastic_wallop",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752024488391,
+      "tag": "0008_warm_bastion",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1752025262751,
+      "tag": "0009_nostalgic_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
