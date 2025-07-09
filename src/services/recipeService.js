@@ -1,6 +1,6 @@
 import { db } from "../db/index.js";
 import { recipes } from "../db/schema.js";
-import { or, ilike } from "drizzle-orm";
+import { or, ilike, sql } from "drizzle-orm";
 import scrapeRecipe from "recipe-scraper";
 
 // List all recipes for a user
@@ -77,7 +77,7 @@ export async function searchLocalRecipes(query, options = {}) {
       .where(
         or(
           ilike(recipes.name, `%${query}%`),
-          ilike(recipes.ingredients, `%${query}%`)
+          sql`"recipes"."recipeIngredients"::text ILIKE ${"%" + query + "%"}`
         )
       )
       .limit(number)
