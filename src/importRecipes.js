@@ -81,7 +81,7 @@ function hasValidServings(recipe) {
   return true;
 }
 
-async function isReachable(url, timeoutMs = 1500) {
+async function isReachable(url, timeoutMs = 3000) {
   if (typeof url !== "string" || !/^https?:\/\//.test(url)) return false;
   try {
     const controller = new AbortController();
@@ -95,18 +95,14 @@ async function isReachable(url, timeoutMs = 1500) {
 }
 
 async function validateRecipe(recipe) {
-  if (!isValidCookTime(recipe)) {
-    return { valid: false, reason: "No valid cook time" };
-  }
-  if (!hasValidServings(recipe)) {
-    return { valid: false, reason: "No valid servings" };
-  }
+  // Only validate that URL is valid and reachable within 3s
   const url = recipe.url;
-  const image = recipe.image;
-  if (!(await isReachable(url))) {
+  if (!(await isReachable(url, 3000))) {
     return { valid: false, reason: "Recipe URL not reachable" };
   }
-  if (!(await isReachable(image))) {
+  // Image check can remain as is
+  const image = recipe.image;
+  if (!(await isReachable(image, 3000))) {
     return { valid: false, reason: "Image URL not reachable" };
   }
   return { valid: true };
@@ -148,13 +144,21 @@ async function importRecipes() {
         recipe.recipeYield ||
         recipe.recipe_yield ||
         recipe.data?.recipeYield;
-      const servings = extractServings(rawServings);
+      let servings = extractServings(rawServings);
+      if (!servings) servings = 4;
+      let cookTime =
+        recipe.cookTime ||
+        recipe.totalTime ||
+        recipe.cook_time ||
+        recipe.data?.cookTime;
+      if (!cookTime || cookTime === "null" || cookTime === "")
+        cookTime = "45 min";
       const row = {
         name: recipe.name,
         ingredients: recipe.ingredients,
         url: recipe.url,
         image: recipe.image,
-        cook_time: recipe.cookTime || recipe.totalTime,
+        cook_time: cookTime,
         source: recipe.source,
         recipe_yield: servings,
         date_published: recipe.datePublished,
