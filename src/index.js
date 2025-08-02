@@ -11,6 +11,7 @@ import paymentsRoutes from "./routes/payments.js";
 import externalRecipesRoutes from "./routes/externalRecipes.js";
 import authRoutes from "./routes/auth.js";
 import aiRoutes from "./routes/ai.js";
+import recommendationsRoutes from "./routes/recommendations.js"; // New import added
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/payments", paymentsRoutes);
 app.use("/api/external/recipes", externalRecipesRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/recommendations", recommendationsRoutes); // New route added
 
 // Health check route
 app.get("/health", (req, res) => {
